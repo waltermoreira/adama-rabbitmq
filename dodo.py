@@ -48,19 +48,19 @@ def remote_image_exists(img):
 def task_build():
     """Build rabbitmq image"""
 
-    all_files = ['dodo.py', 'Dockerfile', 'deploy.yml']
+    all_files = ['dodo.py', 'Dockerfile']
     for d, _, fs in os.walk('handler'):
         for f in fs:
             all_files.append(os.path.join(d, f))
 
     return {
-        'actions': ['docker build -t rabbitmq .',
-                    'docker inspect -f "{{ .Id }}" rabbitmq > .build'],
+        'actions': ['docker build -t adama/rabbitmq .',
+                    'docker inspect -f "{{ .Id }}" adama/rabbitmq > .build'],
         'targets': ['.build'],
         'file_dep': all_files,
         'task_dep': ['_check_images'],
         'uptodate': [result_dep('_check_images'),
-                     target_image_exists('rabbitmq')],
+                     target_image_exists('adama/rabbitmq')],
         'clean': True,
         'verbosity': 2
     }
@@ -70,9 +70,8 @@ def task_push():
     """Push image to docker hub"""
 
     return {
-        'actions': ['docker tag -f rabbitmq adama/rabbitmq',
-                    'docker push adama/rabbitmq',
-                    'docker inspect -f "{{ .Id }}" rabbitmq > .push'],
+        'actions': ['docker push adama/rabbitmq',
+                    'docker inspect -f "{{ .Id }}" adama/rabbitmq > .push'],
         'targets': ['.push'],
         'file_dep': ['.build'],
         'task_dep': ['build'],
